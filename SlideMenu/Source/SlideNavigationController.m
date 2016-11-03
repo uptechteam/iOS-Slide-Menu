@@ -39,6 +39,8 @@ typedef enum {
 @property (nonatomic, assign) CGPoint draggingPoint;
 @property (nonatomic, assign) Menu lastRevealedMenu;
 @property (nonatomic, assign) BOOL menuNeedsLayout;
+@property (nonatomic, strong) UIView* overlayView;
+
 @end
 
 @implementation SlideNavigationController
@@ -479,6 +481,12 @@ static SlideNavigationController *singletonInstance;
 
 	[self prepareMenuForReveal:menu];
 	
+    if(self.overlayView){
+        self.overlayView.alpha = 0.f;
+        self.overlayView.frame = self.topViewController.view.bounds;
+        [self.topViewController.view addSubview:self.overlayView];
+    }
+
 	[UIView animateWithDuration:duration
 						  delay:0
 						options:self.menuRevealAnimationOption
@@ -487,6 +495,11 @@ static SlideNavigationController *singletonInstance;
 						 CGFloat width = self.horizontalSize;
 						 rect.origin.x = (menu == MenuLeft) ? (width - self.slideOffset) : ((width - self.slideOffset )* -1);
 						 [self moveHorizontallyToLocation:rect.origin.x];
+                         
+                         if(self.overlayView){
+                             self.overlayView.alpha = self.overlayOpacity;
+                         }
+
 					 }
 					 completion:^(BOOL finished) {
 						 if (completion)
@@ -509,10 +522,19 @@ static SlideNavigationController *singletonInstance;
 						 CGRect rect = self.view.frame;
 						 rect.origin.x = 0;
 						 [self moveHorizontallyToLocation:rect.origin.x];
+                         
+                         if(self.overlayView){
+                             self.overlayView.alpha = 0.f;
+                         }
+
 					 }
 					 completion:^(BOOL finished) {
 						 if (completion)
 							 completion();
+                         
+                         if(self.overlayView){
+                             [self.overlayView removeFromSuperview];
+                         }
                          
                          [self postNotificationWithName:SlideNavigationControllerDidClose forMenu:menu];
 					 }];
@@ -881,6 +903,15 @@ static SlideNavigationController *singletonInstance;
     [_rightMenu.view removeFromSuperview];
     
     _rightMenu = rightMenu;
+}
+
+-(void)setOverlayOpacity:(CGFloat)overlayOpacity{
+    _overlayOpacity = overlayOpacity;
+    
+    if(overlayOpacity > 0 && !self.overlayView){
+        self.overlayView = [[UIView alloc] initWithFrame:CGRectZero];
+        self.overlayView.backgroundColor = [UIColor blackColor];
+    }
 }
 
 @end
