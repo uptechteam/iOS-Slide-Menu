@@ -142,7 +142,9 @@ static SlideNavigationController *singletonInstance;
     
     // When menu open we disable user interaction
     // When rotates we want to make sure that userInteraction is enabled again
-    [self enableTapGestureToCloseMenu:NO];
+    // But only if it's not the case when the view will layout subviews after adding a shadow overlay
+    if(!([self.view.subviews containsObject:self.overlayView] && self.overlayView.alpha > 0.0))
+        [self enableTapGestureToCloseMenu:NO];
     
     if (self.menuNeedsLayout)
     {
@@ -484,7 +486,7 @@ static SlideNavigationController *singletonInstance;
     if(self.overlayView){
         self.overlayView.alpha = 0.f;
         self.overlayView.frame = self.topViewController.view.bounds;
-        [self.topViewController.view addSubview:self.overlayView];
+        [self.view addSubview:self.overlayView];
     }
 
 	[UIView animateWithDuration:duration
@@ -911,6 +913,8 @@ static SlideNavigationController *singletonInstance;
     if(overlayOpacity > 0 && !self.overlayView){
         self.overlayView = [[UIView alloc] initWithFrame:CGRectZero];
         self.overlayView.backgroundColor = [UIColor blackColor];
+        [self.overlayView addGestureRecognizer:self.tapRecognizer];
+        [self.overlayView addGestureRecognizer:self.panRecognizer];
     }
 }
 
