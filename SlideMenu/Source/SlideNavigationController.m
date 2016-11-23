@@ -485,7 +485,7 @@ static SlideNavigationController *singletonInstance;
 	
     if(self.overlayView){
         self.overlayView.alpha = 0.f;
-        self.overlayView.frame = self.topViewController.view.bounds;
+        self.overlayView.frame = self.view.bounds;
         [self.view addSubview:self.overlayView];
     }
 
