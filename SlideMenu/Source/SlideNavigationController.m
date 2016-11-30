@@ -39,7 +39,7 @@ typedef enum {
 @property (nonatomic, assign) CGPoint draggingPoint;
 @property (nonatomic, assign) Menu lastRevealedMenu;
 @property (nonatomic, assign) BOOL menuNeedsLayout;
-@property (nonatomic, strong) UIView* overlayView;
+@property (nonatomic, assign) CGFloat overlayOpacity;
 
 @end
 
@@ -907,15 +907,12 @@ static SlideNavigationController *singletonInstance;
     _rightMenu = rightMenu;
 }
 
--(void)setOverlayOpacity:(CGFloat)overlayOpacity{
-    _overlayOpacity = overlayOpacity;
+-(void)setOverlayView:(UIView *)overlayView {
+    _overlayView = overlayView;
     
-    if(overlayOpacity > 0 && !self.overlayView){
-        self.overlayView = [[UIView alloc] initWithFrame:CGRectZero];
-        self.overlayView.backgroundColor = [UIColor blackColor];
-        [self.overlayView addGestureRecognizer:self.tapRecognizer];
-        [self.overlayView addGestureRecognizer:self.panRecognizer];
-    }
+    self.overlayOpacity = overlayView.alpha;
+    [self.overlayView addGestureRecognizer:self.tapRecognizer];
+    [self.overlayView addGestureRecognizer:self.panRecognizer];
 }
 
 @end
